@@ -197,7 +197,7 @@ bool removeDoubleHash(RouteHashTable& ht, const string& key) {
 
 //  ПОДЗАДАНИЕ 6.1: ЭМПИРИЧЕСКИЙ АНАЛИЗ
 
-void runEmpiricalAnalysis(int n) { //принимает число элементов
+void runEmpiricalAnalysis(int n) { // принимает число элементов
     if (n <= 0) return;
 
     // Выбираем размер таблицы (простое число >= 2*n, чтобы коэффициент заполнения был ~0.5)
@@ -213,25 +213,68 @@ void runEmpiricalAnalysis(int n) { //принимает число элемен�
     RouteHashTable htDouble = createRouteTable(cap);
     int foundVal = 0;
 
-    // 1. Замер Линейного апробирования (добавление + поиск + удаление n элементов)
-    auto startLin = high_resolution_clock::now();
-    for (int i = 0; i < n; ++i) insertLinear(htLinear, keys[i], i);
-    for (int i = 0; i < n; ++i) searchLinear(htLinear, keys[i], foundVal);
-    for (int i = 0; i < n; ++i) removeLinear(htLinear, keys[i]);
-    auto endLin = high_resolution_clock::now();
-    auto timeLin = duration_cast<microseconds>(endLin - startLin).count();
+    // ЛИНЕЙНОЕ АПРОБИРОВАНИЕ
+    
+    // Замер добавления (Insertion)
+    auto startLinIns = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        insertLinear(htLinear, keys[i], i);
+    }
+    auto endLinIns = high_resolution_clock::now();
+    auto timeLinIns = duration_cast<microseconds>(endLinIns - startLinIns).count();
 
-    // 2. Замер Двойного хеширования (добавление + поиск + удаление n элементов)
-    auto startDbl = high_resolution_clock::now();
-    for (int i = 0; i < n; ++i) insertDoubleHash(htDouble, keys[i], i);
-    for (int i = 0; i < n; ++i) searchDoubleHash(htDouble, keys[i], foundVal);
-    for (int i = 0; i < n; ++i) removeDoubleHash(htDouble, keys[i]);
-    auto endDbl = high_resolution_clock::now();
-    auto timeDbl = duration_cast<microseconds>(endDbl - startDbl).count();
+    // Замер поиска (Search)
+    auto startLinSch = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        searchLinear(htLinear, keys[i], foundVal);
+    }
+    auto endLinSch = high_resolution_clock::now();
+    auto timeLinSch = duration_cast<microseconds>(endLinSch - startLinSch).count();
 
-    // Выводим только время
-    cout << "Линейное апробирование (" << n << " эл.): " << timeLin << " мкс" << endl;
-    cout << "Двойное хеширование (" << n << " эл.): " << timeDbl << " мкс" << endl;
+    // Замер удаления (Deletion)
+    auto startLinRem = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        removeLinear(htLinear, keys[i]);
+    }
+    auto endLinRem = high_resolution_clock::now();
+    auto timeLinRem = duration_cast<microseconds>(endLinRem - startLinRem).count();
+
+    //ДВОЙНОЕ ХЕШИРОВАНИЕ
+
+    // Замер добавления (Insertion)
+    auto startDblIns = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        insertDoubleHash(htDouble, keys[i], i);
+    }
+    auto endDblIns = high_resolution_clock::now();
+    auto timeDblIns = duration_cast<microseconds>(endDblIns - startDblIns).count();
+
+    // Замер поиска (Search)
+    auto startDblSch = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        searchDoubleHash(htDouble, keys[i], foundVal);
+    }
+    auto endDblSch = high_resolution_clock::now();
+    auto timeDblSch = duration_cast<microseconds>(endDblSch - startDblSch).count();
+
+    // Замер удаления (Deletion)
+    auto startDblRem = high_resolution_clock::now();
+    for (int i = 0; i < n; ++i) {
+        removeDoubleHash(htDouble, keys[i]);
+    }
+    auto endDblRem = high_resolution_clock::now();
+    auto timeDblRem = duration_cast<microseconds>(endDblRem - startDblRem).count();
+
+    // Выводим результаты по каждой операции отдельно
+    cout << "Линейное апробирование (" << n << " эл.)" << endl;
+    cout << "Добавление: " << timeLinIns << " мкс" << endl;
+    cout << "Поиск:      " << timeLinSch << " мкс" << endl;
+    cout << "Удаление:   " << timeLinRem << " мкс" << endl;
+
+    cout << "\n Двойное хеширование (" << n << " эл.)" << endl;
+    cout << "Добавление: " << timeDblIns << " мкс" << endl;
+    cout << "Поиск:      " << timeDblSch << " мкс" << endl;
+    cout << "Удаление:   " << timeDblRem << " мкс" << endl;
 
     destroyRouteTable(htLinear);
     destroyRouteTable(htDouble);
